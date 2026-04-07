@@ -18,7 +18,7 @@ df = load_data('csv/death_full_chinese_column.csv', '發現日期')
 
 # Define which columns to hide by their names
 cols_to_show = ['發現日期', '編號', '性別', '姓名', '年齡範圍',
-       '區域', '縣市', '發現地', '死亡原因', '承辦檢察署', 
+       '區域', '縣市', '發現地址', '死亡原因', '承辦檢察署', 
        '存放地', '身材描述', '身高', '身體特徵', '衣著特徵',
        '隨身物品', '死亡方式',  '報驗機關',
        '承辦單位', 'e化案號'  
@@ -62,7 +62,7 @@ else:
     
     if "南部" in selected_regions:
         default_cities.append("屏東縣")
-        
+
 available_cities = sorted(df[df['區域'].isin(selected_regions)]['縣市'].unique().tolist()) if selected_regions else sorted(df['縣市'].unique().tolist())
 
 selected_cities = st.sidebar.multiselect(
