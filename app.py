@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 
 # Set Page Config
-st.set_page_config(page_title="台灣無名屍名單", layout="wide")
+st.set_page_config(page_title="台灣無名屍名單 - Taiwan Unknown Dead List", layout="wide")
 
-st.title("📊 台灣無名屍名單")
+st.title("台灣無名屍名單 Taiwan Unknown Dead List")
 
 # 1. Load Data (Using cache so it's fast)
 @st.cache_data
