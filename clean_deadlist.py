@@ -74,6 +74,40 @@ def unit_to_full_city(unit: str):
         return f"{name}縣"
     else:
         return f"{name}市"
+    
+
+def finalize_city_name(city_name, unit_name, address, unit_city_name, city_name_set):
+  
+    # Check if the value is missing, "不詳", "其他", or lacks "市/縣"   
+    needs_replace = (
+        pd.isna(city_name) or 
+        city_name == 'nan' or 
+        '不詳' in city_name or 
+        '其他' in city_name or 
+        (not ('市' in city_name or '縣' in city_name))
+    )
+
+    # List of Shilin districts that belong to New Taipei City
+    shilin_new_taipei = ['淡水', '八里', '三芝', '石門']
+
+    if needs_replace:
+        # --- Special Case: Shilin ---
+        if '士林' in unit_name:
+            # Look at the address to decide between Taipei or New Taipei
+            if any(dist in address for dist in shilin_new_taipei):
+                return '新北市'
+            else:
+                return '臺北市'
+        
+        # --- General Case ---
+        return unit_city_name
+    
+    # Otherwise (for 鳳山市, 永和市, 剛雄縣, etc.), use the Unit's City
+    if city_name not in city_name_set:
+        return unit_city_name
+    
+    # If it already has "市" or "縣" and isn't "不詳/其他", keep it
+    return city_name
 
 # Load the dataset
 df = pd.read_csv('csv/raw_death_full.csv')
@@ -146,39 +180,6 @@ extracted_compare.loc[:, 'UnitFullCity'] = extracted_compare['rUnitName'].apply(
 extracted_compare.loc[extracted_compare['rDeathCity'].isna(), 'rDeathCity'] = extracted_compare.loc[mask, 'UnitFullCity']
 
 # Finalize cities names with unit cities
-
-def finalize_city_name(city_name, unit_name, address, unit_city_name, city_name_set):
-  
-    # Check if the value is missing, "不詳", "其他", or lacks "市/縣"   
-    needs_replace = (
-        pd.isna(city_name) or 
-        city_name == 'nan' or 
-        '不詳' in city_name or 
-        '其他' in city_name or 
-        (not ('市' in city_name or '縣' in city_name))
-    )
-
-    # List of Shilin districts that belong to New Taipei City
-    shilin_new_taipei = ['淡水', '八里', '三芝', '石門']
-
-    if needs_replace:
-        # --- Special Case: Shilin ---
-        if '士林' in unit_name:
-            # Look at the address to decide between Taipei or New Taipei
-            if any(dist in address for dist in shilin_new_taipei):
-                return '新北市'
-            else:
-                return '臺北市'
-        
-        # --- General Case ---
-        return unit_city_name
-    
-    # Otherwise (for 鳳山市, 永和市, 剛雄縣, etc.), use the Unit's City
-    if city_name not in city_name_set:
-        return unit_city_name
-    
-    # If it already has "市" or "縣" and isn't "不詳/其他", keep it
-    return city_name
 
 # Apply to the DataFrame using .loc to avoid the SettingWithCopyWarning
 extracted_compare['rDeathCity'] = extracted_compare.apply(
