@@ -52,6 +52,9 @@ MODERN_CITYMAME = {
     '新莊市': '新北市'
 }
 
+TOKEN = os.getenv("TOKEN")
+CHAT_IDS = os.getenv("CHAT_ID").split(',')
+
 def find_admin_unit(text: str):
     if pd.isna(text): 
         return None
@@ -110,13 +113,12 @@ def finalize_city_name(city_name, unit_name, address, unit_city_name, city_name_
     # If it already has "市" or "縣" and isn't "不詳/其他", keep it
     return city_name
 
-def send_telegram_msg(message):
-    token = os.getenv("TOKEN")
-    chat_ids = os.getenv("CHAT_ID").split(',')
+def send_telegram_msg(token: str, chat_ids: list, message: str):
     for cid in chat_ids:
-       url = f"https://api.telegram.org/bot{token}/sendMessage"
-       payload = {"chat_id": cid.strip(), "text": message}
-       requests.post(url, data=payload)
+        cleaned_cid = cid.strip()
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {"chat_id": cleaned_cid, "text": message}
+        requests.post(url, data=payload)
 
 # Load the dataset
 df = pd.read_csv('csv/raw_death_full.csv')
@@ -294,11 +296,13 @@ else:
 if current_count > last_recorded_count:
     new_records = current_count - last_recorded_count
     message = f"🚨 Found {new_records} new records in 宜/花/東/屏! Total: {current_count} (Previous: {last_recorded_count})"
-    send_telegram_msg(message)
+    send_telegram_msg(TOKEN, CHAT_IDS, message)
     
     # 4. UPDATE the file so the next run knows the new baseline
     with open(count_file, "w") as f:
         f.write(str(current_count))
     print(f"Count updated to {current_count}")
 else:
-    print("No new records found.")
+    message = "List Updated. No new records found."
+    print(message)
+    send_telegram_msg(TOKEN, CHAT_IDS, message)
