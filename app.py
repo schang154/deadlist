@@ -2,10 +2,9 @@ import streamlit as st
 import pandas as pd
 
 # Set Page Config
-st.set_page_config(page_title="台灣東部及屏東無名屍名單", layout="wide")
+st.set_page_config(page_title="台灣無名屍名單", layout="wide")
 
 st.title("📊 台灣無名屍名單")
-st.markdown("篩選東部及屏東縣案件")
 
 # 1. Load Data (Using cache so it's fast)
 @st.cache_data
