@@ -1,7 +1,8 @@
 import pandas as pd
-from IPython.display import display
 import re
-
+import os
+import requests
+from dotenv import load_dotenv
 
 REGION_MAP = {
     # 北部 (North)
@@ -108,6 +109,14 @@ def finalize_city_name(city_name, unit_name, address, unit_city_name, city_name_
     
     # If it already has "市" or "縣" and isn't "不詳/其他", keep it
     return city_name
+
+def send_telegram_msg(message):
+    token = os.getenv("TOKEN")
+    chat_ids = os.getenv("CHAT_ID").split(',')
+    for cid in chat_ids:
+       url = f"https://api.telegram.org/bot{token}/sendMessage"
+       payload = {"chat_id": cid.strip(), "text": message}
+       requests.post(url, data=payload)
 
 # Load the dataset
 df = pd.read_csv('csv/raw_death_full.csv')
@@ -253,3 +262,43 @@ df_chinese_column = df.rename(columns={
 
 # Saves directly to your project folder
 df_chinese_column.to_csv('csv/death_full_chinese_column.csv', index=False, encoding='utf-8-sig')
+
+##### Send notification
+
+# 1. Define your target list
+target_counties = ['宜蘭縣', '花蓮縣', '臺東縣', '屏東縣']
+
+df_chinese_column['發現日期'] = pd.to_datetime(df_chinese_column['發現日期']).dt.date
+
+# 2. Create the mask
+mask = (df_chinese_column['發現日期'] > pd.to_datetime('2025-07-22').date()) & \
+       (df_chinese_column['縣市'].isin(target_counties))
+
+filtered_df = df_chinese_column[mask]
+
+load_dotenv()
+
+current_count = len(filtered_df)
+count_file = "last_count.txt"
+
+# 2. Read the previous count (if it exists)
+if os.path.exists(count_file):
+    with open(count_file, "r") as f:
+       content = f.read().strip()
+        # If the file is empty, default to 0
+       last_recorded_count = int(content) if content else 0
+else:
+    last_recorded_count = 0
+
+# 3. Notification Logic
+if current_count > last_recorded_count:
+    new_records = current_count - last_recorded_count
+    message = f"🚨 Found {new_records} new records in 宜/花/東/屏! Total: {current_count} (Previous: {last_recorded_count})"
+    send_telegram_msg(message)
+    
+    # 4. UPDATE the file so the next run knows the new baseline
+    with open(count_file, "w") as f:
+        f.write(str(current_count))
+    print(f"Count updated to {current_count}")
+else:
+    print("No new records found.")
