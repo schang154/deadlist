@@ -58,7 +58,7 @@ CHAT_IDS = os.getenv("CHAT_ID").split(',')
 def find_admin_unit(text: str):
     if pd.isna(text): 
         return None
-    # We look for 2 characters + the marker
+    # look for 2 characters + the marker
     match = re.search(r'(.{2}[市縣區鄉鎮])', str(text))
     return match.group(1) if match else None
 
@@ -68,7 +68,7 @@ def unit_to_full_city(unit: str):
     if '士林' in unit: return '臺北市'
     if '法醫' in unit: return '新北市'
     
-    # Most Prosecutors offices are "City" level, but some are "County"
+    # Most prosecutors' offices are "City" level, but some are "County"
     name = unit[2:4].replace('台', '臺')
     
     # List of known Counties (remaining are usually Cities)
@@ -97,7 +97,7 @@ def finalize_city_name(city_name, unit_name, address, unit_city_name, city_name_
     if needs_replace:
         # --- Special Case: Shilin ---
         if '士林' in unit_name:
-            # Look at the address to decide between Taipei or New Taipei
+            # Look at the address to decide between Taipei and New Taipei
             if any(dist in address for dist in shilin_new_taipei):
                 return '新北市'
             else:
@@ -127,7 +127,7 @@ df = pd.read_csv('csv/raw_death_full.csv')
 df.loc[df['rID'] == "20240322102253615", 'rDteDeathYYY'] = 111
 df.loc[df['rID'] == "20240322102253615", 'rTimeOfDiscovery'] = '民國111年09月11日'
 
-# Consilidate reasons
+# Consolidate reasons
 df['Reason'] = df['rReasonA'].str.cat([df['rReasonB'], df['rReasonC'], df['rReasonD']], sep=' ', na_rep='')
 
 # Create Date column
@@ -143,13 +143,13 @@ df['DeathDate'] = pd.to_datetime(pd.DataFrame({
     'day': df['rDteDeathDD']
 }), errors='coerce')
 
-# 4. Generate the Weekday Number (0=Mon, 6=Sun)
+# Generate the Weekday Number (0=Mon, 6=Sun)
 df['WeekdayNum'] = df['DeathDate'].dt.weekday
 
 # Strip the time and keep only the YYYY-MM-DD
 df['DeathDate'] = df['DeathDate'].dt.date
 
-# 5. Map to Traditional Chinese Weekdays
+# Map to Traditional Chinese Weekdays
 df['Weekday'] = df['WeekdayNum'].map(CHINESE_WEEKDAYS)
 
 # Create the 'Region' column
@@ -173,7 +173,7 @@ df['ExtractedCity'] = df['ExtractedCity'].str.strip()
 
 extracted_compare = df[['rTimeOfDiscovery', 'rDeathCity', 'rDeathAddr', 'ExtractedCity', 'rUnitName']].copy()
 
-# 3. Fill nan city with extracted cities
+# Fill nan city with extracted cities
 
 # Define the filter (the rows where rDeathCity is null)
 mask = (
@@ -190,7 +190,7 @@ extracted_compare.loc[:, 'UnitFullCity'] = extracted_compare['rUnitName'].apply(
 
 extracted_compare.loc[extracted_compare['rDeathCity'].isna(), 'rDeathCity'] = extracted_compare.loc[mask, 'UnitFullCity']
 
-# Finalize cities names with unit cities
+# Finalize cities' names with unit cities
 
 # Apply to the DataFrame using .loc to avoid the SettingWithCopyWarning
 extracted_compare['rDeathCity'] = extracted_compare.apply(
@@ -210,10 +210,10 @@ df.loc[:, 'rDeathCity'] = extracted_compare['rDeathCity']
 generated_set = set(df['rDeathCity'].unique())
 standard_set = set(STANDARD_CITY)
 
-# 1. Non-standard values currently in your data (The "Clean-up" List)
+## 1. Non-standard values currently in your data (The "Clean-up" List)
 extra_in_data = generated_set - standard_set
 
-# 2. Standard cities that are completely missing from your data
+## 2. Standard cities that are completely missing from your data
 missing_from_data = standard_set - generated_set
 
 print(f"--- Comparison Results ---")
@@ -283,7 +283,7 @@ load_dotenv()
 current_count = len(filtered_df)
 count_file = "last_count.txt"
 
-# 2. Read the previous count (if it exists)
+# 3. Read the previous count (if it exists)
 if os.path.exists(count_file):
     with open(count_file, "r") as f:
        content = f.read().strip()
@@ -292,7 +292,7 @@ if os.path.exists(count_file):
 else:
     last_recorded_count = 0
 
-# 3. Notification Logic
+# 4. Notification Logic
 if current_count > last_recorded_count:
     new_records = current_count - last_recorded_count
     message = f"🚨 Found {new_records} new records in 宜/花/東/屏! Total: {current_count} (Previous: {last_recorded_count})"
