@@ -6,7 +6,6 @@ url = "https://nservice.moj.gov.tw/DeadBook/Home/QueryLog"
 
 session = requests.Session()
 
-# 👉 先拿 session cookie（你 header 裡看到 ASP.NET_SessionId）
 session.get("https://nservice.moj.gov.tw/deadbook/")
 
 headers = {
