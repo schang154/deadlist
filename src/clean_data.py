@@ -5,7 +5,7 @@ import requests
 import logging
 from typing import List
 from dotenv import load_dotenv
-from utils.constants import FOCUS_REGIONS, COUNT_FILE, DEFAULT_START_DATE
+from src.utils.constants import FOCUS_REGIONS, COUNT_FILE, DEFAULT_START_DATE
 
 REGION_MAP = {
     # 北部 (North)
