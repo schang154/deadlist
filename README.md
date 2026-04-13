@@ -115,6 +115,6 @@ img/case_exployer.png
 ## Next Steps
 
 - Add geographic heatmap and choropleth visualization
-- Implement rolling averages and trend analysis
+- Implement trend analysis
 - Improve data quality checks
 - Enhance dashboard layout and usability
