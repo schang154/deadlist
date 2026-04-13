@@ -1,6 +1,6 @@
 # Taiwan Unidentified Cases Monitoring Dashboard
 
-End-to-end analytics system for ingesting, cleaning, and monitoring semi-structured public data with interactive visualization and automated alerts.
+End-to-end analytics system for ingesting, cleaning, and monitoring semi-structured public records of unidentified cases, with interactive visualization and automated alerts.
 
 ## 🚧 Project Status
 
@@ -26,6 +26,8 @@ It was also motivated by a personal interest in following specific cases over ti
 
 ## Architecture
 
+The system follows a lightweight ETL-style workflow, where raw data is ingested, standardized, and stored as an intermediate dataset for downstream analytics and monitoring.
+
 API (JSON)
    ↓
 Data Fetch (Python)
@@ -41,7 +43,7 @@ CSV Storage (intermediate layer)
 
 ## Data Design
 
-The project uses CSV files as an intermediate storage layer between the data processing pipeline and the dashboard.
+The project uses CSV files as an intermediate storage layer between the data processing pipeline and the dashboard. For the current scale and update frequency, this provides a lightweight and efficient solution.
 
 This design allows:
 - separation of data ingestion and visualization
@@ -49,7 +51,33 @@ This design allows:
 - easier inspection and validation of cleaned data
 - reproducible snapshots of processed datasets
 
-For the current scale and update frequency, this provides a lightweight and efficient solution.
+## Data Cleaning & Standardization
+
+The raw dataset retrieved from the source API contains inconsistencies in administrative regions, date formats, and text fields. A multi-step cleaning process was implemented to standardize the data for analysis.
+
+Key steps include:
+
+- **Date normalization**  
+  Converted partial date fields (year, month, day) into a unified datetime format, including handling ROC year offsets.
+
+- **Region classification**  
+  Mapped prosecutor office names to standardized geographic regions (North, Central, South, East, Outlying Islands).
+
+- **City normalization**  
+  Standardized city and county names using:
+  - replacement of legacy administrative names
+  - extraction from address fields when missing
+  - fallback to unit-based location inference
+
+- **Data validation checks**  
+  Ensured all records map to one of the 22 official administrative divisions and flagged any anomalies.
+
+- **Feature engineering**  
+  Derived additional fields such as weekday and consolidated cause-of-death categories.
+
+This process ensures consistency and reliability for downstream analysis and visualization. 
+
+A hierarchical fallback strategy was used to resolve missing or inconsistent location fields, prioritizing direct values, then address parsing, and finally unit-based inference.
 
 ## Key Features
 
@@ -70,30 +98,23 @@ For the current scale and update frequency, this provides a lightweight and effi
 
 ## Dashboard Preview
 
-### Overview (in progress)
+### Overview
+img/overview.png
 
 ### Case Explorer
-![table](images/table.png)
+img/case_exployer.png
 
 ### Geographic Analysis (in progress)
 
-## Project Structure
+## Example Use Cases
 
-project/
-├── app.py
-├── pages/
-├── scripts/
-├── data/
-│ ├── raw/
-│ └── processed/
-├── images/
-├── requirements.txt
-└── README.md
+- Monitoring regional case activity
+- Identifying newly discovered cases in specific regions
+- Supporting exploratory analysis of public records
 
 ## Next Steps
 
 - Add geographic heatmap and choropleth visualization
 - Implement rolling averages and trend analysis
-- Add anomaly detection for unusual spikes
 - Improve data quality checks
 - Enhance dashboard layout and usability
