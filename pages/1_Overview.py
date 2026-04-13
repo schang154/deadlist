@@ -80,10 +80,4 @@ else:
 
 st.subheader("Recent Updates")
 
-# preview_cols = [c for c in ["發現日期", "編號", "縣市", "發現地址"] if c in filtered_df.columns]
-
-# st.dataframe(filtered_df.sort_values(DATE_COL, ascending=False).head(10)[preview_cols], 
-#              use_container_width=True, hide_index=True
-# )
-
 render_case_table(filtered_df.head(10), hidden_cols)
