@@ -35,7 +35,7 @@ jobs:
           CHAT_ID: ${{ secrets.CHAT_ID }}
           PYTHONPATH: .
         run: |
-          python src/run_pipeline.py
+          python -m src.run_pipeline
 
       - name: Commit and Push if data changed
         run: |
