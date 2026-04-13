@@ -5,6 +5,7 @@ import requests
 import logging
 from typing import List
 from dotenv import load_dotenv
+from utils.constants import FOCUS_REGIONS, COUNT_FILE, DEFAULT_START_DATE
 
 REGION_MAP = {
     # 北部 (North)
@@ -53,10 +54,6 @@ MODERN_CITYMAME = {
     '桃園縣': '桃園市',
     '新莊市': '新北市'
 }
-
-DEFAULT_TARGET_COUNTIES = ["宜蘭縣", "花蓮縣", "臺東縣", "屏東縣"]
-DEFAULT_COUNT_FILE = "last_count.txt"
-DEFAULT_CUTOFF_DATE = "2025-07-22"
 
 def find_admin_unit(text: str):
     if pd.isna(text): 
@@ -118,8 +115,6 @@ def finalize_city_name(city_name: str, unit_name:str, address: str,
     # If it already has "市" or "縣" and isn't "不詳/其他", keep it
     return city_name
 
-
-
 def send_telegram_msg(token: str, chat_ids: list, message: str) -> None:
     for cid in chat_ids:
         cleaned_cid = cid.strip()
@@ -129,7 +124,7 @@ def send_telegram_msg(token: str, chat_ids: list, message: str) -> None:
 
 def send_notification(df_chinese_column: pd.DataFrame, token: str, chat_ids: List[str], 
                       target_counties: List[str], cutoff_date: str, 
-                      count_file: str = DEFAULT_COUNT_FILE) -> None:
+                      count_file: str = COUNT_FILE) -> None:
     df_notify = df_chinese_column.copy()
     df_notify["發現日期"] = pd.to_datetime(df_notify["發現日期"], errors="coerce").dt.date
 
@@ -171,8 +166,8 @@ def main(send_alert=True):
     token = os.getenv("TOKEN")
     chat_ids_raw = os.getenv("CHAT_ID", "")
     chat_ids = [cid.strip() for cid in chat_ids_raw.split(",") if cid.strip()]
-    target_counties = DEFAULT_TARGET_COUNTIES
-    cutoff_date = DEFAULT_CUTOFF_DATE
+    target_counties = FOCUS_REGIONS
+    cutoff_date = DEFAULT_START_DATE
 
     # Load the dataset
     df = pd.read_csv('csv/raw_death_full.csv')

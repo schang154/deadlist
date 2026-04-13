@@ -1,5 +1,4 @@
 import streamlit as st
-
 from components.sidebar import render_sidebar
 from components.case_table import render_case_table
 from utils.data_loader import load_data
@@ -9,6 +8,7 @@ from utils.filters import (
     get_latest_date,
 )
 from utils.i18n_utils import init_lang, set_lang_selector, t
+from utils.constants import CSV_FILE, DATE_COL, DEFAULT_START_DATE
 
 st.set_page_config(
     page_title="Case Explorer",
@@ -20,9 +20,6 @@ set_lang_selector()
 
 st.title(t("page_case_explorer_title"))
 
-CSV_FILE = "csv/death_full_chinese_column.csv"
-DATE_COL = "發現日期"
-DEFAULT_START_DATE = "2025-07-22"
 
 COLUMNS_TO_SHOW = [
     "發現日期", "編號", "性別", "姓名", "年齡範圍",
@@ -38,7 +35,7 @@ DETAIL_COLUMNS = [
 
 df = load_data(CSV_FILE, DATE_COL, COLUMNS_TO_SHOW,)
 
-sidebar_state = render_sidebar(df, DEFAULT_START_DATE,)
+sidebar_state = render_sidebar(df, DEFAULT_START_DATE, use_defaults=True)
 
 filtered_df = filter_dataframe(df, DATE_COL, sidebar_state["selected_date"], 
                                sidebar_state["selected_regions"], 
