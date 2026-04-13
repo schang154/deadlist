@@ -34,8 +34,7 @@ jobs:
           TOKEN: ${{ secrets.TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: |
-          python src/fetch_data.py
-          python src/clean_data.py
+          python src/run_pipeline.py
 
       - name: Commit and Push if data changed
         run: |
