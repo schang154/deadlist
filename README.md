@@ -99,10 +99,10 @@ A hierarchical fallback strategy was used to resolve missing or inconsistent loc
 ## Dashboard Preview
 
 ### Overview
-img/overview.png
+![table](img/overview.png)
 
 ### Case Explorer
-img/case_exployer.png
+![table](img/case_explorer.png)
 
 ### Geographic Analysis (in progress)
 
