@@ -1,0 +1,77 @@
+import streamlit as st
+import pandas as pd
+
+from components.sidebar import render_sidebar
+from utils.data_loader import load_data
+from utils.filters import filter_dataframe, get_latest_date
+from utils.i18n_utils import init_lang, set_lang_selector, t
+
+st.set_page_config(page_title="Overview", layout="wide")
+
+init_lang()
+set_lang_selector()
+
+st.title(t("page_overview_title"))
+
+CSV_FILE = "csv/death_full_chinese_column.csv"
+DATE_COL = "發現日期"
+DEFAULT_START_DATE = "2025-07-22"
+
+COLUMNS_TO_SHOW = [
+    "發現日期", "編號", "性別", "姓名", "年齡範圍",
+    "區域", "縣市", "發現地址", "死亡原因", "承辦檢察署",
+    "存放地", "身材描述", "身高", "身體特徵", "衣著特徵",
+    "隨身物品", "死亡方式", "報驗機關", "承辦單位", "e化案號",
+]
+
+df = load_data(CSV_FILE, DATE_COL, COLUMNS_TO_SHOW)
+
+sidebar_state = render_sidebar(df, DEFAULT_START_DATE)
+
+filtered_df = filter_dataframe(df, DATE_COL, sidebar_state["selected_date"],
+                               sidebar_state["selected_regions"], 
+                               sidebar_state["selected_cities"]
+                               )
+
+def get_total_cases(df):
+    return len(df)
+
+def get_new_last_7_days(df, date_col):
+    if df.empty:
+        return 0
+    cutoff = pd.Timestamp.today().normalize() - pd.Timedelta(days=7)
+    dates = pd.to_datetime(df[date_col], errors="coerce")
+    return int((dates >= cutoff).sum())
+
+def get_focus_region_cases(df):
+    focus = ["宜蘭縣", "花蓮縣", "臺東縣", "屏東縣"]
+    if df.empty or "縣市" not in df.columns:
+        return 0
+    return int(df["縣市"].isin(focus).sum())
+
+col1, col2, col3, col4 = st.columns(4)
+col1.metric(t("metric_total_case_count"), get_total_cases(filtered_df))
+col2.metric(t("metric_last_7_days_count"), get_new_last_7_days(filtered_df, DATE_COL))
+col3.metric(t("metric_focus_case_count"), get_focus_region_cases(filtered_df), help=t("metric_focus_region_cases_help"))
+col4.metric(t("metric_latest_date"), get_latest_date(filtered_df, DATE_COL))
+
+st.subheader("Recent Trend")
+if not filtered_df.empty:
+    trend_df = filtered_df.copy()
+    trend_df[DATE_COL] = pd.to_datetime(trend_df[DATE_COL], errors="coerce")
+    daily_counts = (
+        trend_df.dropna(subset=[DATE_COL])
+        .groupby(trend_df[DATE_COL].dt.date)
+        .size()
+    )
+    st.line_chart(daily_counts)
+else:
+    st.info("No data available.")
+
+st.subheader("Recent Updates")
+preview_cols = [c for c in ["發現日期", "編號", "縣市", "發現地址"] if c in filtered_df.columns]
+st.dataframe(
+    filtered_df.sort_values(DATE_COL, ascending=False).head(10)[preview_cols],
+    use_container_width=True,
+    hide_index=True,
+)
