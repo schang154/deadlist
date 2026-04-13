@@ -1,6 +1,6 @@
-from fetch_data import fetch_data
-from clean_data import main as clean_main
-
+from src.fetch_data import fetch_data
+from src.clean_data import main as clean_main
+    
 def run():
     fetch_data()
     clean_main()
