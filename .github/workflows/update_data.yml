@@ -34,8 +34,8 @@ jobs:
           TOKEN: ${{ secrets.TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: |
-          python download_deadlist.py
-          python clean_deadlist.py
+          python src/fetch_data.py
+          python src/clean_data.py
 
       - name: Commit and Push if data changed
         run: |
