@@ -1,5 +1,6 @@
 import streamlit as st
-from utils.i18n_utils import init_lang, set_lang_selector, t
+from utils import init_lang, set_lang_selector, t, get_data_metadata
+from components import render_footer
 
 st.set_page_config(
     page_title="Taiwan Unidentified Case Monitor",
@@ -8,6 +9,7 @@ st.set_page_config(
 
 init_lang()
 set_lang_selector()
+metadata = get_data_metadata()
 
 st.title(t("app_title"))
 st.caption(t("app_subtitle"))
@@ -58,3 +60,5 @@ st.markdown("""
 - **Geographic Analysis**: regional distribution and location-based patterns  (In progress)
 - **Trend Analysis**: time-based monitoring and activity changes  (In progress)
 """)
+
+render_footer(metadata["last_pull_date"], metadata["source"])

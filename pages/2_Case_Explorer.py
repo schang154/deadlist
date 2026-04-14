@@ -1,14 +1,11 @@
 import streamlit as st
-from components.sidebar import render_sidebar
-from components.case_table import render_case_table
-from utils.data_loader import load_data
-from utils.filters import (
-    build_hidden_columns,
-    filter_dataframe,
-    get_latest_date,
+from components import render_sidebar, render_case_table, render_footer
+from utils import (
+    load_data, get_data_metadata, build_hidden_columns,
+    filter_dataframe, get_latest_date,
+    init_lang, set_lang_selector, t
 )
-from utils.i18n_utils import init_lang, set_lang_selector, t
-from utils.constants import CSV_FILE, DATE_COL, DEFAULT_START_DATE
+from constants import CSV_FILE, DATE_COL, DEFAULT_START_DATE
 
 st.set_page_config(
     page_title="Case Explorer",
@@ -17,6 +14,7 @@ st.set_page_config(
 
 init_lang()
 set_lang_selector()
+metadata = get_data_metadata()
 
 st.title(t("page_case_explorer_title"))
 
@@ -61,3 +59,8 @@ col2.metric(
     get_latest_date(filtered_df, DATE_COL),
 )
 render_case_table(filtered_df, hidden_cols)
+
+if metadata["last_pull_date"] == "Unknown":
+    st.warning("Metadata not found. Last update date is unavailable.")
+    
+render_footer(metadata["last_pull_date"], metadata["source"])
