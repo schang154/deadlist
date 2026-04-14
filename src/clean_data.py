@@ -1,11 +1,7 @@
 import pandas as pd
 import re
-import os
-import requests
 import logging
-from typing import List
-from dotenv import load_dotenv
-from utils.constants import FOCUS_REGIONS, COUNT_FILE, DEFAULT_START_DATE
+from constants import RAW_OUTPUT_PATH, CLEAN_OUTPUT_PATH, CLEAN_CHINESE_OUTPUT_PATH
 
 REGION_MAP = {
     # 北部 (North)
@@ -115,62 +111,15 @@ def finalize_city_name(city_name: str, unit_name:str, address: str,
     # If it already has "市" or "縣" and isn't "不詳/其他", keep it
     return city_name
 
-def send_telegram_msg(token: str, chat_ids: list, message: str) -> None:
-    for cid in chat_ids:
-        cleaned_cid = cid.strip()
-        url = f"https://api.telegram.org/bot{token}/sendMessage"
-        payload = {"chat_id": cleaned_cid, "text": message}
-        requests.post(url, data=payload)
 
-def send_notification(df_chinese_column: pd.DataFrame, token: str, chat_ids: List[str], 
-                      target_counties: List[str], cutoff_date: str, 
-                      count_file: str = COUNT_FILE) -> None:
-    df_notify = df_chinese_column.copy()
-    df_notify["發現日期"] = pd.to_datetime(df_notify["發現日期"], errors="coerce").dt.date
 
-    mask = (
-        (df_notify["發現日期"] > pd.to_datetime(cutoff_date).date()) &
-        (df_notify["縣市"].isin(target_counties))
-    )
-
-    filtered_df = df_notify[mask]
-    current_count = len(filtered_df)
-
-    if os.path.exists(count_file):
-        with open(count_file, "r", encoding="utf-8") as f:
-            content = f.read().strip()
-            last_recorded_count = int(content) if content else 0
-    else:
-        last_recorded_count = 0
-
-    if current_count > last_recorded_count:
-        new_records = current_count - last_recorded_count
-        message = (
-            f"🚨 Found {new_records} new records in 宜/花/東/屏! "
-            f"Total: {current_count} (Previous: {last_recorded_count})"
-        )
-        send_telegram_msg(token, chat_ids, message)
-
-        with open(count_file, "w", encoding="utf-8") as f:
-            f.write(str(current_count))
-    else:
-        message = "List updated. No new records found."
-        send_telegram_msg(token, chat_ids, message)
-
-def main(send_alert=True):
-    load_dotenv()
+def main():
 
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-    token = os.getenv("TOKEN")
-    chat_ids_raw = os.getenv("CHAT_ID", "")
-    chat_ids = [cid.strip() for cid in chat_ids_raw.split(",") if cid.strip()]
-    target_counties = FOCUS_REGIONS
-    cutoff_date = DEFAULT_START_DATE
-
     # Load the dataset
-    df = pd.read_csv('csv/raw_death_full.csv')
+    df = pd.read_csv(RAW_OUTPUT_PATH)
 
     # DeathYYY has min 11, doesn't make sense
     df.loc[df['rID'] == "20240322102253615", 'rDteDeathYYY'] = 111
@@ -277,7 +226,7 @@ def main(send_alert=True):
     # Drop the old columns
     df.drop(columns=['rDteDeathYYY', 'rDteDeathMM', 'rDteDeathDD', 'rReasonA', 'rReasonB', 'rReasonC', 'rReasonD', 'rDetailsViewed', 'year_corr', 'ExtractedCity'], inplace=True)
 
-    df.to_csv('./csv/death_full.csv', index=False, encoding='utf-8-sig')
+    df.to_csv(CLEAN_OUTPUT_PATH, index=False, encoding='utf-8-sig')
 
     df_chinese_column = df.rename(columns={
     'rSerial': '序號', 
@@ -316,14 +265,8 @@ def main(send_alert=True):
     }).copy()
 
     # Saves directly to your project folder
-    df_chinese_column.to_csv('./csv/death_full_chinese_column.csv', index=False, encoding='utf-8-sig')
+    df_chinese_column.to_csv(CLEAN_CHINESE_OUTPUT_PATH, index=False, encoding='utf-8-sig')
     logger.info("Saved CSV")
-    
-    if send_alert:
-        if not token or not chat_ids:
-            raise ValueError("Missing TOKEN or CHAT_ID environment variables.")
-        send_notification(df_chinese_column=df_chinese_column, token=token, chat_ids=chat_ids,
-                          target_counties=target_counties,cutoff_date=cutoff_date)
 
 if __name__ == "__main__":
     main()
