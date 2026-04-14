@@ -36,7 +36,7 @@ def run(send_alert: bool = False) -> None:
     target_counties = FOCUS_REGIONS
 
     logger.info("Step 5: Sending notification...")
-    maybe_send_alert(send_alert, token, chat_ids, target_counties, metadata)
+    maybe_send_alert(True, token, chat_ids, target_counties, metadata)
 
 if __name__ == "__main__":
     load_dotenv()
