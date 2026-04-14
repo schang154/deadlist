@@ -29,17 +29,16 @@ It was also motivated by a personal interest in following specific cases over ti
 The system follows a lightweight ETL-style workflow, where raw data is ingested, standardized, and stored as an intermediate dataset for downstream analytics and monitoring.
 
 API (JSON)
-   ↓
+    ↓
 Data Fetch (Python)
-   ↓
+    ↓
 Data Cleaning & Standardization
-   ↓
+    ↓
 Change Detection
-   ↓
+    ↓
 CSV Storage (intermediate layer)
-   ↓
-├─ Streamlit Dashboard
-└─ Telegram Alerts
+    ├── Streamlit Dashboard
+    └── Telegram Alerts
 
 ## Data Design
 
