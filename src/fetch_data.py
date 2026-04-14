@@ -1,13 +1,15 @@
-from pathlib import Path
 import logging
 import pandas as pd
 import requests
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
+from typing import List
+from constants import (
+    RAW_OUTPUT_PATH, METADATA_PATH, 
+)
 
 BASE_URL = "https://nservice.moj.gov.tw/deadbook/"
 API_URL = "https://nservice.moj.gov.tw/DeadBook/Home/QueryLog"
-OUTPUT_PATH = Path("./csv/raw_death_full.csv")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -41,10 +43,7 @@ def create_session() -> requests.Session:
     session.headers.update(headers)
     return session
 
-
-def fetch_data() -> pd.DataFrame:
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
+def fetch_raw_rows() -> List[dict]:
     payload = {
         "qSex": "",
         "qDteDeathYYY": "",
@@ -53,18 +52,18 @@ def fetch_data() -> pd.DataFrame:
         "qDeathCity": "",
         "qHeight": "",
     }
-    
+
     with create_session() as session:
         logger.info("Initializing session...")
         init_res = session.get(BASE_URL, timeout=30)
         init_res.raise_for_status()
 
-        
         logger.info("Fetching data from API...")
         res = session.post(API_URL, data=payload, timeout=30)
+
         if not res.ok:
-            print("Status:", res.status_code)
-            print("Response text:", res.text[:2000])
+            logger.error("Status: %s", res.status_code)
+            logger.error("Response text: %s", res.text[:2000])
             res.raise_for_status()
 
         data = res.json()
@@ -73,11 +72,23 @@ def fetch_data() -> pd.DataFrame:
         if rows is None:
             raise KeyError("Expected key path 'data -> rDeadList' was not found.")
 
-        df = pd.DataFrame(rows)
-        df.to_csv(OUTPUT_PATH, index=False, encoding="utf-8-sig")
+        return rows
+    
 
-        logger.info("Saved %s rows to %s", len(df), OUTPUT_PATH)
-        return df
+
+def fetch_data() -> pd.DataFrame:
+    RAW_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    rows = fetch_raw_rows()
+    df = pd.DataFrame(rows)
+
+    df.to_csv(RAW_OUTPUT_PATH, index=False, encoding="utf-8-sig")
+
+    logger.info("RAW_OUTPUT_PATH: %s", RAW_OUTPUT_PATH.resolve())
+    logger.info("METADATA_PATH: %s", METADATA_PATH.resolve())
+    logger.info("Saved %s rows to %s", len(df), RAW_OUTPUT_PATH)
+
+    return df
 
 
 if __name__ == "__main__":
