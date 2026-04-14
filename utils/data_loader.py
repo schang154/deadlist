@@ -1,7 +1,8 @@
 import pandas as pd
 import streamlit as st
 from typing import List
-
+import json
+from constants import METADATA_PATH
 
 @st.cache_data
 def load_data(csv_file: str, date_column: str, columns_to_show: List[str]) -> pd.DataFrame:
@@ -16,3 +17,16 @@ def load_data(csv_file: str, date_column: str, columns_to_show: List[str]) -> pd
     df = df[available_columns].copy()
 
     return df
+
+def get_data_metadata() -> None:
+    if METADATA_PATH.exists():
+        with open(METADATA_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    return {
+        "last_pull_date": "Unknown",
+        "row_count": 0,
+        "previous_row_count": 0,
+        "new_rows": 0,
+        "source": "Ministry of Justice, Taiwan | 中華民國法務部",
+    }
