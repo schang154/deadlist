@@ -68,12 +68,14 @@ st.subheader("Recent Trend")
 if not filtered_df.empty:
     trend_df = filtered_df.copy()
     trend_df[DATE_COL] = pd.to_datetime(trend_df[DATE_COL], errors="coerce")
-    daily_counts = (
+    monthly_counts = (
         trend_df.dropna(subset=[DATE_COL])
-        .groupby(trend_df[DATE_COL].dt.date)
+        .groupby(trend_df[DATE_COL].dt.to_period("M"))
         .size()
     )
-    st.line_chart(daily_counts)
+
+    monthly_counts.index = monthly_counts.index.to_timestamp()
+    st.line_chart(monthly_counts)
 else:
     st.info("No data available.")
 
