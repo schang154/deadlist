@@ -12,7 +12,6 @@ def render_footer(last_update_str, source_name="Ministry of Justice, Taiwan"):
             text-align: center;
             color: #666;
             font-size: 12px;
-            padding: 8px 12px;
             background-color: white;
             border-top: 1px solid #e6e6e6;
             z-index: 999;
