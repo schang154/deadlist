@@ -26,7 +26,7 @@ It was also motivated by a personal interest in following specific cases over ti
 
 ## Architecture
 
-The system follows a lightweight ETL-style workflow, where raw data is ingested, standardized, and stored as an intermediate dataset for downstream analytics and monitoring.
+The system follows a lightweight ETL-style workflow, where raw data is ingested, standardized, and stored as an intermediate dataset for downstream analytics and monitoring. The intermediate CSV layer serves as a cache to minimize repeated API calls and improve performance, while also providing a stable data source for reproducible analysis.
 
 <pre> 
 API (JSON)
