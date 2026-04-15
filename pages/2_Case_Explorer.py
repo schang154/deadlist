@@ -5,7 +5,11 @@ from utils import (
     filter_dataframe, get_latest_date,
     init_lang, set_lang_selector, t
 )
-from constants import CSV_FILE, DATE_COL, DEFAULT_START_DATE
+from constants import (
+    CSV_FILE, DATE_COL, 
+    DEFAULT_START_DATE, 
+    COLUMNS_TO_SHOW
+)
 
 st.set_page_config(
     page_title="Case Explorer",
@@ -18,20 +22,12 @@ metadata = get_data_metadata()
 
 st.title(t("page_case_explorer_title"))
 
-
-COLUMNS_TO_SHOW = [
-    "發現日期", "編號", "性別", "姓名", "年齡範圍",
-    "區域", "縣市", "發現地址", "死亡原因", "承辦檢察署",
-    "存放地", "身材描述", "身高", "身體特徵", "衣著特徵",
-    "隨身物品", "死亡方式", "報驗機關", "承辦單位", "e化案號",
-]
-
 DETAIL_COLUMNS = [
     "身材描述", "身高", "身體特徵", "衣著特徵",
     "隨身物品", "死亡方式", "報驗機關", "承辦單位", "e化案號",
 ]
 
-df = load_data(CSV_FILE, DATE_COL, COLUMNS_TO_SHOW,)
+df = load_data(CSV_FILE, DATE_COL, COLUMNS_TO_SHOW)
 
 sidebar_state = render_sidebar(df, DEFAULT_START_DATE, use_defaults=True)
 
