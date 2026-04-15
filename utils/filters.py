@@ -3,7 +3,7 @@ from typing import List
 
 
 
-def filter_dataframe(df: pd.DataFrame, date_column: str, selected_date, 
+def filter_dataframe(df: pd.DataFrame, date_column: str, selected_date: str, 
                      selected_regions: List[str], selected_cities: List[str]) -> pd.DataFrame:
   mask = pd.Series(True, index=df.index)
 
