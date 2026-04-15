@@ -113,6 +113,24 @@ A hierarchical fallback strategy was used to resolve missing or inconsistent loc
 - Identifying newly discovered cases in specific regions
 - Supporting exploratory analysis of public records
 
+## Limitations
+
+### Data Limitations
+- 78 records are missing discovery dates.
+- Some fields (e.g., location and demographic attributes) are missing or incomplete in a substantial portion of records.
+- The discovery date reflects when remains were found, not the time of death.
+- Reporting delays may affect the completeness of recent records.
+
+### Methodological Limitations
+- Geographic coordinates are approximated through geocoding and may not represent exact discovery locations.
+- Region classifications are manually defined for analysis purposes.
+- Change detection is based on snapshot comparisons and may not capture all revisions to case records.
+
+### Interpretation Limitations
+- The dataset includes only cases that were reported and published in the source system.
+- Differences across regions or time periods may be influenced by how cases are recorded and published, rather than true underlying patterns.
+- Observed trends are descriptive and should not be interpreted as causal.
+
 ## Next Steps
 
 - Add geographic heatmap and choropleth visualization
