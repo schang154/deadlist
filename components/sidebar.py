@@ -15,20 +15,29 @@ def render_sidebar(df: pd.DataFrame, default_start_date: str,
                    use_defaults: bool = False) -> dict:
     st.sidebar.header(t("sidebar_section_filters"))
 
-    min_date = pd.to_datetime(df['發現日期'], errors="coerce").min().date()
+    date_series = pd.to_datetime(df["發現日期"], errors="coerce").dropna()
+    min_date = date_series.min().date()
+    max_date = date_series.max().date()
+
     default_regions = []
 
     if use_defaults:
         default_regions = ["北部", "南部", "東部"]
-        selected_date = st.sidebar.date_input(
-            t("sidebar_filter_date"),
-            value=pd.to_datetime(default_start_date).date(),
-        )
+        default_date = pd.to_datetime(default_start_date).date()
     else:
-        selected_date = st.sidebar.date_input(
-            t("sidebar_filter_date"),
-            value=min_date
-        )
+        default_date = min_date
+
+    if default_date < min_date:
+        default_date = min_date
+    if default_date > max_date:
+        default_date = max_date
+
+    selected_date = st.sidebar.date_input(
+        t("sidebar_filter_date"),
+        value=default_date,
+        min_value=min_date,
+        max_value=max_date,
+    )
 
     all_regions = sorted(df["區域"].dropna().unique().tolist())
 
