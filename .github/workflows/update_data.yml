@@ -44,5 +44,6 @@ jobs:
           git add csv/raw_death_full.csv
           git add csv/death_full_chinese_column.csv
           git add csv/death_full.csv
+          git add csv/data_metadata.json
           git commit -m "Automated Data Update: $(date +'%Y-%m-%d')" || exit 0
           git push
