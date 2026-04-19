@@ -4,7 +4,6 @@ from typing import List
 import json
 from constants import METADATA_PATH
 
-@st.cache_data
 def load_data(csv_file: str, date_column: str, columns_to_show: List[str]) -> pd.DataFrame:
     df = pd.read_csv(csv_file)
 
