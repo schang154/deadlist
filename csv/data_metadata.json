@@ -1,8 +1,8 @@
 {
-  "last_pull_date": "2026-07-31",
+  "last_pull_date": "2026-08-01",
   "row_count": 2893,
-  "previous_row_count": 2890,
-  "new_rows": 3,
+  "previous_row_count": 2893,
+  "new_rows": 0,
   "source": "Ministry of Justice, Taiwan | 中華民國法務部",
   "focus_region_start_date": "2025-07-22",
   "focus_region_counts": {
@@ -13,8 +13,8 @@
   },
   "focus_region_previous_counts": {
     "宜蘭縣": 13,
-    "花蓮縣": 9,
+    "花蓮縣": 10,
     "臺東縣": 3,
-    "屏東縣": 13
+    "屏東縣": 14
   }
 }
