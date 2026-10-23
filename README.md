@@ -4,7 +4,9 @@ End-to-end analytics system for ingesting, cleaning, and monitoring semi-structu
 
 ## 🚧 Project Status
 
-This project is actively under development.
+This project is still under development.
+
+*** 2026/10/23: API access is currently blocked because of foreign IP. ***
 
 Current capabilities:
 - Data pipeline (API ingestion → cleaning → CSV output)
